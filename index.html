@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Glitchium Protocol v3.0</title>
+    <title>Glitchium Protocol</title>
     <style>
         /* --- ESTILO VISUAL --- */
         :root {
@@ -10,7 +10,7 @@
             --neon-pink: #ff0055;
             --bg-dark: #0a0a0c;
             --panel-bg: rgba(20, 24, 30, 0.95);
-            --success-color: #00ffaa; /* Verde para indicar slider correto */
+            --success-color: #00ffaa;
         }
 
         body { 
@@ -40,31 +40,29 @@
             border-radius: 8px;
             text-align: center;
             width: 650px;
+            max-width: 90vw;
         }
 
-        /* LOGO */
+        /* --- ESTILO DO LOGO --- */
         .logo-container {
-            margin-bottom: 20px;
-            min-height: 60px;
+            margin-bottom: 25px;
             display: flex;
             justify-content: center;
             align-items: center;
         }
         
         .main-logo {
-            max-width: 250px;
-            filter: drop-shadow(0 0 8px rgba(100, 196, 255, 0.5));
+            max-width: 280px; /* Tamanho do logo */
+            height: auto;
+            display: block;
+            /* Adiciona um efeito de brilho no logo transparente */
+            filter: drop-shadow(0 0 5px rgba(100, 196, 255, 0.5));
+            transition: transform 0.3s;
         }
-
-        /* Texto alternativo bonito se a imagem falhar */
-        .logo-text {
-            font-size: 32px;
-            font-weight: 900;
-            color: #fff;
-            text-transform: uppercase;
-            letter-spacing: 5px;
-            text-shadow: 2px 2px 0px var(--neon-pink), -2px -2px 0px var(--main-blue);
-            display: none; /* Escondido por padrão */
+        
+        .main-logo:hover {
+            transform: scale(1.02);
+            filter: drop-shadow(0 0 15px rgba(100, 196, 255, 0.8));
         }
 
         canvas { 
@@ -91,7 +89,6 @@
             transition: all 0.3s;
         }
 
-        /* Classe que adicionaremos via JS quando o slider estiver certo */
         .slider-wrapper.correct {
             border-color: var(--success-color);
             box-shadow: 0 0 10px rgba(0, 255, 170, 0.2);
@@ -128,7 +125,6 @@
             min-height: 20px;
         }
 
-        /* Botão Discord */
         #success-modal {
             display: none;
             flex-direction: column;
@@ -174,8 +170,7 @@
     <div class="interface-container">
         
         <div class="logo-container">
-            <img src="logo-glitchium.png" class="main-logo" onerror="this.style.display='none'; document.querySelector('.logo-text').style.display='block';">
-            <div class="logo-text">GLITCHIUM</div>
+            <img src="Glitchium.png" alt="GLITCHIUM" class="main-logo">
         </div>
 
         <div id="status">⚠️ SINAL INSTÁVEL - REQUER SINCRONIZAÇÃO</div>
@@ -208,10 +203,7 @@
     </div>
 
     <script>
-        // Espera a página carregar para evitar erros
-        window.onload = function() {
-            initGame();
-        };
+        window.onload = function() { initGame(); };
 
         function initGame() {
             const canvas = document.getElementById('syncCanvas');
@@ -220,28 +212,19 @@
             const successModal = document.getElementById('success-modal');
             const debugEl = document.getElementById('debug');
             
-            // Elementos DOM dos Sliders
             const inputs = {
                 freq: document.getElementById('freq'),
                 amp: document.getElementById('amp'),
                 phase: document.getElementById('phase')
             };
 
-            // Elementos DOM das caixas (para mudar a cor)
             const wrappers = {
                 freq: document.getElementById('wrap-freq'),
                 amp: document.getElementById('wrap-amp'),
                 phase: document.getElementById('wrap-phase')
             };
 
-            // --- SEGREDOS DO PUZZLE ---
-            const target = {
-                freq: 0.055,
-                amp: 65,
-                phase: 3.1
-            };
-
-            // Tolerância (Quanto maior, mais fácil)
+            const target = { freq: 0.055, amp: 65, phase: 3.1 };
             const tolerance = { freq: 0.007, amp: 12, phase: 0.9 };
 
             let time = 0;
@@ -250,7 +233,7 @@
             function draw() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 
-                // Desenha Grade de Fundo
+                // Grade Fundo
                 ctx.strokeStyle = "rgba(100, 196, 255, 0.05)";
                 ctx.lineWidth = 1;
                 ctx.beginPath();
@@ -261,7 +244,7 @@
                 time += 0.08;
                 const centerY = canvas.height / 2;
 
-                // 1. ONDA ALVO (Guia)
+                // Onda Alvo
                 ctx.beginPath();
                 ctx.strokeStyle = "rgba(255, 255, 255, 0.1)";
                 ctx.lineWidth = 4;
@@ -273,51 +256,42 @@
                 ctx.stroke();
                 ctx.setLineDash([]); 
 
-                // 2. ONDA DO JOGADOR
+                // Onda Jogador
                 const curFreq = parseFloat(inputs.freq.value);
                 const curAmp = parseFloat(inputs.amp.value);
                 const curPhase = parseFloat(inputs.phase.value);
 
-                // Cálculo de diferença
                 const errFreq = Math.abs(curFreq - target.freq);
                 const errAmp = Math.abs(curAmp - target.amp);
                 const errPhase = Math.abs(curPhase - target.phase);
 
-                // --- SISTEMA DE FEEDBACK VISUAL (LUZES) ---
-                // Se a Frequência estiver certa, acende a caixa
+                // Luzes de Feedback
                 if(errFreq < tolerance.freq) wrappers.freq.classList.add('correct');
                 else wrappers.freq.classList.remove('correct');
 
-                // Se a Amplitude estiver certa, acende a caixa
                 if(errAmp < tolerance.amp) wrappers.amp.classList.add('correct');
                 else wrappers.amp.classList.remove('correct');
 
-                // Se a Fase estiver certa, acende a caixa
                 if(errPhase < tolerance.phase) wrappers.phase.classList.add('correct');
                 else wrappers.phase.classList.remove('correct');
 
-                // Verifica Vitória Total
                 const solvedNow = (errFreq < tolerance.freq && errAmp < tolerance.amp && errPhase < tolerance.phase);
 
                 if (!isSolved && solvedNow) {
                     onSuccess();
                 }
 
-                // Define Cor da Linha
                 if (isSolved) {
-                    ctx.strokeStyle = "#00ffaa"; // Verde Sucesso
+                    ctx.strokeStyle = "#00ffaa"; 
                     ctx.shadowBlur = 15;
                     ctx.shadowColor = "#00ffaa";
                 } else {
-                    ctx.strokeStyle = "#ff0055"; // Rosa Erro
+                    ctx.strokeStyle = "#ff0055"; 
                     ctx.shadowBlur = 0;
                 }
 
-                // Desenha Linha do Jogador
                 ctx.beginPath();
                 ctx.lineWidth = 3;
-                
-                // Tremor (diminui quanto mais perto você chega)
                 let jitter = 0;
                 if (!isSolved) {
                     const totalError = (errFreq * 500) + (errAmp / 2) + (errPhase * 5);
@@ -329,7 +303,6 @@
                     ctx.lineTo(x, y);
                 }
                 ctx.stroke();
-
                 requestAnimationFrame(draw);
             }
 
@@ -339,12 +312,9 @@
                 statusEl.style.color = "#00ffaa";
                 statusEl.style.textShadow = "0 0 10px #00ffaa";
                 successModal.style.display = "flex";
-                
-                // Trava os controles
                 inputs.freq.disabled = true;
                 inputs.amp.disabled = true;
                 inputs.phase.disabled = true;
-                
                 debugEl.innerText = "Connection Established.";
             }
 
