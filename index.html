@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Glitchium Protocol</title>
+    <title>Glitchium Protocol v4.0</title>
     <style>
         /* --- ESTILO VISUAL --- */
         :root {
@@ -10,7 +10,6 @@
             --neon-pink: #ff0055;
             --bg-dark: #0a0a0c;
             --panel-bg: rgba(20, 24, 30, 0.95);
-            --success-color: #00ffaa;
         }
 
         body { 
@@ -31,6 +30,30 @@
             user-select: none;
         }
 
+        /* LOGO FORA DO BLOCO E MAIOR */
+        .logo-container {
+            margin-bottom: 30px; /* Espaço entre o logo e o painel */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+        }
+        
+        .main-logo {
+            max-width: 450px; /* Aumentei o tamanho */
+            width: 90%; /* Responsivo para celulares */
+            height: auto;
+            display: block;
+            filter: drop-shadow(0 0 15px rgba(100, 196, 255, 0.4));
+            transition: transform 0.3s;
+        }
+        
+        .main-logo:hover {
+            transform: scale(1.02);
+            filter: drop-shadow(0 0 25px rgba(100, 196, 255, 0.8));
+        }
+
+        /* PAINEL PRINCIPAL */
         .interface-container {
             position: relative;
             border: 1px solid var(--main-blue);
@@ -41,28 +64,6 @@
             text-align: center;
             width: 650px;
             max-width: 90vw;
-        }
-
-        /* --- ESTILO DO LOGO --- */
-        .logo-container {
-            margin-bottom: 25px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .main-logo {
-            max-width: 280px; /* Tamanho do logo */
-            height: auto;
-            display: block;
-            /* Adiciona um efeito de brilho no logo transparente */
-            filter: drop-shadow(0 0 5px rgba(100, 196, 255, 0.5));
-            transition: transform 0.3s;
-        }
-        
-        .main-logo:hover {
-            transform: scale(1.02);
-            filter: drop-shadow(0 0 15px rgba(100, 196, 255, 0.8));
         }
 
         canvas { 
@@ -87,16 +88,6 @@
             border-radius: 4px;
             border: 1px solid rgba(100, 196, 255, 0.1);
             transition: all 0.3s;
-        }
-
-        .slider-wrapper.correct {
-            border-color: var(--success-color);
-            box-shadow: 0 0 10px rgba(0, 255, 170, 0.2);
-            background: rgba(0, 255, 170, 0.05);
-        }
-        
-        .slider-wrapper.correct label {
-            color: var(--success-color);
         }
 
         label { 
@@ -167,26 +158,26 @@
 </head>
 <body>
 
+    <div class="logo-container">
+        <img src="Glitchium.png" alt="GLITCHIUM" class="main-logo">
+    </div>
+
     <div class="interface-container">
         
-        <div class="logo-container">
-            <img src="Glitchium.png" alt="GLITCHIUM" class="main-logo">
-        </div>
-
         <div id="status">⚠️ SINAL INSTÁVEL - REQUER SINCRONIZAÇÃO</div>
         
         <canvas id="syncCanvas" width="600" height="250"></canvas>
         
         <div class="controls">
-            <div class="slider-wrapper" id="wrap-freq">
+            <div class="slider-wrapper">
                 <label>Frequência</label>
                 <input type="range" id="freq" min="0.01" max="0.1" step="0.001" value="0.02">
             </div>
-            <div class="slider-wrapper" id="wrap-amp">
+            <div class="slider-wrapper">
                 <label>Amplitude</label>
                 <input type="range" id="amp" min="10" max="100" step="1" value="20">
             </div>
-            <div class="slider-wrapper" id="wrap-phase">
+            <div class="slider-wrapper">
                 <label>Fase (Shift)</label>
                 <input type="range" id="phase" min="0" max="6.3" step="0.1" value="0">
             </div>
@@ -199,7 +190,7 @@
             </a>
         </div>
         
-        <div id="debug">System Initialized.</div>
+        <div id="debug">System Initialized. v4.0</div>
     </div>
 
     <script>
@@ -218,13 +209,8 @@
                 phase: document.getElementById('phase')
             };
 
-            const wrappers = {
-                freq: document.getElementById('wrap-freq'),
-                amp: document.getElementById('wrap-amp'),
-                phase: document.getElementById('wrap-phase')
-            };
-
             const target = { freq: 0.055, amp: 65, phase: 3.1 };
+            // Mantive a tolerância para ser possível vencer, mas sem ajuda visual
             const tolerance = { freq: 0.007, amp: 12, phase: 0.9 };
 
             let time = 0;
@@ -265,16 +251,7 @@
                 const errAmp = Math.abs(curAmp - target.amp);
                 const errPhase = Math.abs(curPhase - target.phase);
 
-                // Luzes de Feedback
-                if(errFreq < tolerance.freq) wrappers.freq.classList.add('correct');
-                else wrappers.freq.classList.remove('correct');
-
-                if(errAmp < tolerance.amp) wrappers.amp.classList.add('correct');
-                else wrappers.amp.classList.remove('correct');
-
-                if(errPhase < tolerance.phase) wrappers.phase.classList.add('correct');
-                else wrappers.phase.classList.remove('correct');
-
+                // Checagem de Vitória
                 const solvedNow = (errFreq < tolerance.freq && errAmp < tolerance.amp && errPhase < tolerance.phase);
 
                 if (!isSolved && solvedNow) {
