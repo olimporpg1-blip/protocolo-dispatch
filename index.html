@@ -2,22 +2,30 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Neural Sync Interface</title>
+    <title>Glitchium Protocol</title>
     <style>
-        /* --- ESTILO VISUAL --- */
+        /* --- ESTILO VISUAL (Baseado nas referências) --- */
+        :root {
+            --main-blue: #64c4ff; /* Azul claro da referência */
+            --neon-pink: #ff0055; /* Rosa para erro/glitch */
+            --bg-dark: #0a0a0c;   /* Fundo quase preto */
+            --panel-bg: rgba(20, 24, 30, 0.95); /* Fundo do painel semi-transparente */
+        }
+
         body { 
-            background-color: #050505;
+            background-color: var(--bg-dark);
+            /* Grade azul claro sutil */
             background-image: 
-                linear-gradient(rgba(0, 243, 255, 0.05) 1px, transparent 1px), 
-                linear-gradient(90deg, rgba(0, 243, 255, 0.05) 1px, transparent 1px);
-            background-size: 40px 40px;
-            color: #00f3ff; 
+                linear-gradient(rgba(100, 196, 255, 0.07) 1px, transparent 1px), 
+                linear-gradient(90deg, rgba(100, 196, 255, 0.07) 1px, transparent 1px);
+            background-size: 50px 50px;
+            color: var(--main-blue); 
             font-family: 'Courier New', monospace; 
             display: flex; 
             flex-direction: column; 
             align-items: center; 
             justify-content: center; 
-            height: 100vh; 
+            min-height: 100vh; 
             margin: 0; 
             overflow: hidden;
             user-select: none;
@@ -25,19 +33,30 @@
 
         .interface-container {
             position: relative;
-            border: 1px solid #333;
-            padding: 40px;
-            background: rgba(10, 12, 16, 0.95);
-            box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
-            border-radius: 4px;
+            /* Borda azul fina como na referência */
+            border: 1px solid var(--main-blue);
+            padding: 30px 40px;
+            background: var(--panel-bg);
+            /* Brilho azul suave atrás do painel */
+            box-shadow: 0 0 40px rgba(100, 196, 255, 0.2);
+            border-radius: 8px;
             text-align: center;
             width: 650px;
         }
 
+        /* Estilo para o Logo */
+        .main-logo {
+            max-width: 80%;
+            height: auto;
+            margin-bottom: 25px;
+            /* Adiciona um leve brilho no logo para destacar */
+            filter: drop-shadow(0 0 10px rgba(100, 196, 255, 0.3));
+        }
+
         canvas { 
-            border: 2px solid #1a1a2e; 
-            background: #08080a; 
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.9);
+            border: 2px solid #3a4a5a; /* Borda do canvas mais discreta */
+            background: #05070a; 
+            box-shadow: inset 0 0 20px rgba(0,0,0,1);
             margin-bottom: 20px;
             border-radius: 4px;
             width: 100%;
@@ -51,9 +70,10 @@
         }
 
         .slider-wrapper {
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(100, 196, 255, 0.05); /* Fundo sutil nos sliders */
             padding: 10px;
             border-radius: 4px;
+            border: 1px solid rgba(100, 196, 255, 0.1);
         }
 
         label { 
@@ -61,14 +81,14 @@
             font-size: 10px; 
             text-transform: uppercase; 
             letter-spacing: 1px; 
-            color: #888; 
+            color: rgba(100, 196, 255, 0.7); 
             margin-bottom: 8px;
         }
 
         input[type=range] { 
             width: 100%; 
             cursor: pointer;
-            accent-color: #00f3ff;
+            accent-color: var(--main-blue); /* Cor do slider */
         }
 
         #status { 
@@ -76,7 +96,7 @@
             font-size: 14px; 
             font-weight: bold; 
             letter-spacing: 2px;
-            color: #ff0055; 
+            color: var(--neon-pink); 
             text-shadow: 0 0 5px rgba(255, 0, 85, 0.5);
             min-height: 20px;
         }
@@ -89,11 +109,11 @@
             margin-top: 10px;
             animation: fadeIn 0.5s forwards;
             padding-top: 20px;
-            border-top: 1px solid #333;
+            border-top: 1px solid rgba(100, 196, 255, 0.3);
         }
 
         .discord-btn {
-            background-color: #00f3ff;
+            background-color: var(--main-blue);
             color: #000;
             padding: 15px 40px;
             text-decoration: none;
@@ -101,7 +121,7 @@
             font-size: 16px;
             border-radius: 2px;
             letter-spacing: 1px;
-            box-shadow: 0 0 15px rgba(0, 243, 255, 0.6);
+            box-shadow: 0 0 15px rgba(100, 196, 255, 0.6);
             transition: all 0.2s;
             display: inline-block;
             text-transform: uppercase;
@@ -109,14 +129,14 @@
 
         .discord-btn:hover {
             transform: scale(1.05);
-            box-shadow: 0 0 30px rgba(0, 243, 255, 1);
+            box-shadow: 0 0 30px var(--main-blue);
             background-color: #fff;
         }
 
         /* Debug Panel */
         #debug {
             font-size: 9px;
-            color: #444;
+            color: rgba(100, 196, 255, 0.4);
             margin-top: 10px;
             font-family: monospace;
         }
@@ -127,6 +147,8 @@
 <body>
 
     <div class="interface-container">
+        <img src="logo-glitchium.png" alt="Glitchium Logo" class="main-logo" onerror="this.style.display='none'; console.log('Erro: Imagem do logo não encontrada. Verifique o nome do arquivo.');">
+
         <div id="status">⚠️ SINAL INSTÁVEL - REQUER SINCRONIZAÇÃO</div>
         
         <canvas id="syncCanvas" width="600" height="250"></canvas>
@@ -147,7 +169,7 @@
         </div>
 
         <div id="success-modal">
-            <h2 style="color: #00f3ff; margin: 0 0 15px 0; font-size: 16px;">ACESSO TOTAL CONCEDIDO</h2>
+            <h2 style="color: var(--main-blue); margin: 0 0 15px 0; font-size: 16px;">ACESSO TOTAL CONCEDIDO</h2>
             <a href="https://discord.gg/cjvrF4ufR6" target="_blank" class="discord-btn">
                 ENTRAR NO SERVIDOR
             </a>
@@ -177,16 +199,20 @@
 
             // --- CONFIGURAÇÃO DA RESPOSTA ---
             const target = {
-                freq: 0.055,  // Densidade da onda
-                amp: 65,      // Altura da onda
-                phase: 3.1    // Posição lateral
+                freq: 0.055,
+                amp: 65,
+                phase: 3.1
             };
 
-            // Tolerância (Facilidade)
+            // Tolerância
             const tolerance = { freq: 0.006, amp: 10, phase: 0.8 };
 
             let time = 0;
             let isSolved = false;
+
+            // Cores do JS
+            const colorSuccess = "#64c4ff"; // Azul claro
+            const colorError = "#ff0055";   // Rosa glitch
 
             function draw() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -229,16 +255,16 @@
 
                 // Cores
                 if (isSolved) {
-                    ctx.strokeStyle = "#00f3ff"; 
+                    ctx.strokeStyle = colorSuccess; 
                     ctx.shadowBlur = 15;
-                    ctx.shadowColor = "#00f3ff";
+                    ctx.shadowColor = colorSuccess;
                     statusEl.innerText = "SINAL ESTABILIZADO - CONEXÃO SEGURA";
-                    statusEl.style.color = "#00f3ff";
+                    statusEl.style.color = colorSuccess;
                 } else {
-                    ctx.strokeStyle = "#ff0055"; 
+                    ctx.strokeStyle = colorError; 
                     ctx.shadowBlur = 0;
                     statusEl.innerText = "⚠️ SINAL INSTÁVEL - REQUER SINCRONIZAÇÃO";
-                    statusEl.style.color = "#ff0055";
+                    statusEl.style.color = colorError;
                 }
 
                 // Desenha Onda Jogador
@@ -247,39 +273,3 @@
                 
                 let jitter = 0;
                 if (!isSolved) {
-                    const totalError = (errFreq * 500) + (errAmp / 2) + (errPhase * 5);
-                    jitter = (Math.random() - 0.5) * Math.min(totalError / 5, 4);
-                }
-
-                for (let x = 0; x < canvas.width; x++) {
-                    const y = centerY + Math.sin(x * curFreq + curPhase + time) * curAmp + jitter;
-                    ctx.lineTo(x, y);
-                }
-                ctx.stroke();
-
-                requestAnimationFrame(draw);
-            }
-
-            function drawGrid(ctx, w, h) {
-                ctx.strokeStyle = "rgba(255, 255, 255, 0.03)";
-                ctx.lineWidth = 1;
-                ctx.beginPath();
-                for(let i=0; i<w; i+=40) { ctx.moveTo(i,0); ctx.lineTo(i, h); }
-                for(let i=0; i<h; i+=40) { ctx.moveTo(0,i); ctx.lineTo(w, i); }
-                ctx.stroke();
-            }
-
-            function onSuccess() {
-                isSolved = true;
-                successModal.style.display = "flex";
-                inputs.freq.disabled = true;
-                inputs.amp.disabled = true;
-                inputs.phase.disabled = true;
-                debugEl.innerText = "SYSTEM BYPASS COMPLETE.";
-            }
-
-            draw();
-        }
-    </script>
-</body>
-</html>
