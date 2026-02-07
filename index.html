@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Glitchium Protocol v4.0</title>
+    <title>Glitchium Protocol v5.0</title>
     <link rel="icon" type="image/png" href="icon.png">
 
     <style>
@@ -30,30 +30,30 @@
             margin: 0; 
             overflow: hidden;
             user-select: none;
+            transition: background-color 0.2s; /* Suaviza a entrada do flash */
         }
 
-        /* LOGO FORA DO BLOCO E MAIOR */
-        .logo-container {
-            margin-bottom: 30px; /* Espaço entre o logo e o painel */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
+        /* CLASSE PARA PISCAR A TELA EM VERMELHO */
+        body.flashing-red {
+            animation: redFlash 0.5s infinite alternate;
         }
-        
+
+        @keyframes redFlash {
+            from { background-color: var(--bg-dark); }
+            to { background-color: rgba(255, 0, 85, 0.3); }
+        }
+
+        /* LOGO */
+        .logo-container {
+            margin-bottom: 30px;
+            display: flex; justify-content: center; align-items: center; width: 100%;
+        }
         .main-logo {
-            max-width: 450px; /* Aumentei o tamanho */
-            width: 90%; /* Responsivo para celulares */
-            height: auto;
-            display: block;
+            max-width: 450px; width: 90%; height: auto; display: block;
             filter: drop-shadow(0 0 15px rgba(100, 196, 255, 0.4));
             transition: transform 0.3s;
         }
-        
-        .main-logo:hover {
-            transform: scale(1.02);
-            filter: drop-shadow(0 0 25px rgba(100, 196, 255, 0.8));
-        }
+        .main-logo:hover { transform: scale(1.02); filter: drop-shadow(0 0 25px rgba(100, 196, 255, 0.8)); }
 
         /* PAINEL PRINCIPAL */
         .interface-container {
@@ -66,93 +66,90 @@
             text-align: center;
             width: 650px;
             max-width: 90vw;
+            z-index: 10; /* Garante que fique acima do fundo */
+        }
+
+        /* NOVO: ESTILO DO CRONÔMETRO */
+        #timer-display {
+            font-size: 36px;
+            font-weight: 900;
+            color: var(--main-blue);
+            text-shadow: 0 0 10px var(--main-blue);
+            margin-bottom: 10px;
+            font-variant-numeric: tabular-nums; /* Mantém os números alinhados */
         }
 
         canvas { 
-            border: 1px solid #3a4a5a;
-            background: #05070a; 
-            box-shadow: inset 0 0 30px #000;
-            margin-bottom: 20px;
-            border-radius: 4px;
-            width: 100%;
+            border: 1px solid #3a4a5a; background: #05070a; 
+            box-shadow: inset 0 0 30px #000; margin-bottom: 20px; border-radius: 4px; width: 100%;
         }
 
         .controls { 
-            display: grid; 
-            grid-template-columns: 1fr 1fr 1fr; 
-            gap: 15px; 
-            margin-bottom: 20px;
+            display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 20px;
         }
 
         .slider-wrapper {
-            background: rgba(255, 255, 255, 0.03);
-            padding: 15px 10px;
-            border-radius: 4px;
-            border: 1px solid rgba(100, 196, 255, 0.1);
-            transition: all 0.3s;
+            background: rgba(255, 255, 255, 0.03); padding: 15px 10px; border-radius: 4px;
+            border: 1px solid rgba(100, 196, 255, 0.1); transition: all 0.3s;
         }
 
         label { 
-            display: block;
-            font-size: 11px; 
-            text-transform: uppercase; 
-            letter-spacing: 1px; 
-            color: rgba(100, 196, 255, 0.6); 
-            margin-bottom: 10px;
-            font-weight: bold;
+            display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;
+            color: rgba(100, 196, 255, 0.6); margin-bottom: 10px; font-weight: bold;
         }
 
-        input[type=range] { 
-            width: 100%; 
-            cursor: pointer;
-            accent-color: var(--main-blue);
-        }
+        input[type=range] { width: 100%; cursor: pointer; accent-color: var(--main-blue); }
 
         #status { 
-            margin-bottom: 15px; 
-            font-size: 14px; 
-            font-weight: bold; 
-            letter-spacing: 2px;
-            color: var(--neon-pink); 
-            text-shadow: 0 0 5px rgba(255, 0, 85, 0.5);
-            min-height: 20px;
+            margin-bottom: 15px; font-size: 14px; font-weight: bold; letter-spacing: 2px;
+            color: var(--neon-pink); text-shadow: 0 0 5px rgba(255, 0, 85, 0.5); min-height: 20px;
         }
 
         #success-modal {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            margin-top: 10px;
-            animation: fadeIn 0.5s forwards;
-            padding-top: 20px;
-            border-top: 1px solid rgba(100, 196, 255, 0.3);
+            display: none; flex-direction: column; align-items: center; margin-top: 10px;
+            animation: fadeIn 0.5s forwards; padding-top: 20px; border-top: 1px solid rgba(100, 196, 255, 0.3);
         }
 
         .discord-btn {
-            background-color: var(--main-blue);
-            color: #000;
-            padding: 15px 40px;
-            text-decoration: none;
+            background-color: var(--main-blue); color: #000; padding: 15px 40px;
+            text-decoration: none; font-weight: 900; font-size: 16px; border-radius: 2px;
+            letter-spacing: 1px; box-shadow: 0 0 15px rgba(100, 196, 255, 0.6); transition: all 0.2s;
+            display: inline-block; text-transform: uppercase;
+        }
+        .discord-btn:hover { transform: scale(1.05); box-shadow: 0 0 30px var(--main-blue); background-color: #fff; }
+
+        #debug { font-size: 10px; color: rgba(100, 196, 255, 0.3); margin-top: 15px; }
+
+        /* NOVO: OVERLAY DE ACESSO NEGADO */
+        #fail-overlay {
+            display: none; /* Escondido inicialmente */
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(10, 0, 5, 0.9); /* Fundo escuro avermelhado */
+            z-index: 999; /* Fica por cima de tudo */
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            animation: fadeIn 0.2s forwards;
+        }
+
+        .fail-text {
+            font-size: 80px;
             font-weight: 900;
-            font-size: 16px;
-            border-radius: 2px;
-            letter-spacing: 1px;
-            box-shadow: 0 0 15px rgba(100, 196, 255, 0.6);
-            transition: all 0.2s;
-            display: inline-block;
-            text-transform: uppercase;
+            color: var(--neon-pink);
+            text-shadow: 0 0 30px var(--neon-pink), 0 0 60px red;
+            letter-spacing: 5px;
+            text-align: center;
+            animation: glitchText 0.2s infinite;
         }
-
-        .discord-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 30px var(--main-blue);
-            background-color: #fff;
-        }
-
-        #debug {
-            font-size: 10px;
-            color: rgba(100, 196, 255, 0.3);
-            margin-top: 15px;
+        
+        @keyframes glitchText {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0); }
         }
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -160,13 +157,19 @@
 </head>
 <body>
 
+    <div id="fail-overlay">
+        <div class="fail-text">ACESSO<br>NEGADO</div>
+    </div>
+
     <div class="logo-container">
         <img src="Glitchium.png" alt="GLITCHIUM" class="main-logo">
     </div>
 
     <div class="interface-container">
         
-        <div id="status">⚠️ SINAL INSTÁVEL - REQUER SINCRONIZAÇÃO</div>
+        <div id="timer-display">60.00</div>
+        
+        <div id="status">⚠️ SINAL INSTÁVEL - TIME LIMIT ACTIVE</div>
         
         <canvas id="syncCanvas" width="600" height="250"></canvas>
         
@@ -192,7 +195,7 @@
             </a>
         </div>
         
-        <div id="debug">System Initialized. v4.0</div>
+        <div id="debug">System Initialized. v5.0 - Timer Active</div>
     </div>
 
     <script>
@@ -205,6 +208,11 @@
             const successModal = document.getElementById('success-modal');
             const debugEl = document.getElementById('debug');
             
+            // Novos elementos do Timer e Falha
+            const timerDisplayEl = document.getElementById('timer-display');
+            const failOverlayEl = document.getElementById('fail-overlay');
+            const bodyEl = document.body;
+
             const inputs = {
                 freq: document.getElementById('freq'),
                 amp: document.getElementById('amp'),
@@ -212,11 +220,33 @@
             };
 
             const target = { freq: 0.055, amp: 65, phase: 3.1 };
-            // Mantive a tolerância para ser possível vencer, mas sem ajuda visual
+            // Dificuldade hardcore (sem luzes, sem ajuda)
             const tolerance = { freq: 0.007, amp: 12, phase: 0.9 };
 
             let time = 0;
             let isSolved = false;
+            let isFailed = false; // Nova variável para controlar derrota
+
+            // --- LÓGICA DO CRONÔMETRO ---
+            let timeLeft = 60.00; // Tempo inicial em segundos
+            
+            // Atualiza o cronômetro a cada 100ms (décimos de segundo)
+            const timerInterval = setInterval(() => {
+                if (isSolved || isFailed) return; // Se já ganhou ou perdeu, não faz nada
+
+                timeLeft -= 0.1; // Tira 0.1 segundo
+
+                // Atualiza a tela
+                timerDisplayEl.innerText = timeLeft.toFixed(2);
+
+                // Se o tempo acabar
+                if (timeLeft <= 0) {
+                    timeLeft = 0.00;
+                    timerDisplayEl.innerText = "0.00";
+                    onFail();
+                }
+            }, 100);
+
 
             function draw() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -253,17 +283,20 @@
                 const errAmp = Math.abs(curAmp - target.amp);
                 const errPhase = Math.abs(curPhase - target.phase);
 
-                // Checagem de Vitória
-                const solvedNow = (errFreq < tolerance.freq && errAmp < tolerance.amp && errPhase < tolerance.phase);
+                // Checagem de Vitória (só se não tiver falhado ainda)
+                const solvedNow = (!isFailed && errFreq < tolerance.freq && errAmp < tolerance.amp && errPhase < tolerance.phase);
 
                 if (!isSolved && solvedNow) {
                     onSuccess();
                 }
 
+                // Cores da linha
                 if (isSolved) {
                     ctx.strokeStyle = "#00ffaa"; 
-                    ctx.shadowBlur = 15;
-                    ctx.shadowColor = "#00ffaa";
+                    ctx.shadowBlur = 15; ctx.shadowColor = "#00ffaa";
+                } else if (isFailed) {
+                    ctx.strokeStyle = "#ff0000"; // Linha vermelha sólida se falhou
+                    ctx.shadowBlur = 10; ctx.shadowColor = "#ff0000";
                 } else {
                     ctx.strokeStyle = "#ff0055"; 
                     ctx.shadowBlur = 0;
@@ -272,7 +305,7 @@
                 ctx.beginPath();
                 ctx.lineWidth = 3;
                 let jitter = 0;
-                if (!isSolved) {
+                if (!isSolved && !isFailed) {
                     const totalError = (errFreq * 500) + (errAmp / 2) + (errPhase * 5);
                     jitter = (Math.random() - 0.5) * Math.min(totalError / 4, 3);
                 }
@@ -287,6 +320,8 @@
 
             function onSuccess() {
                 isSolved = true;
+                clearInterval(timerInterval); // PARA O CRONÔMETRO!
+
                 statusEl.innerText = "SINAL ESTABILIZADO - CONEXÃO SEGURA";
                 statusEl.style.color = "#00ffaa";
                 statusEl.style.textShadow = "0 0 10px #00ffaa";
@@ -294,7 +329,29 @@
                 inputs.freq.disabled = true;
                 inputs.amp.disabled = true;
                 inputs.phase.disabled = true;
-                debugEl.innerText = "Connection Established.";
+                debugEl.innerText = "Connection Established. Timer Stopped.";
+                timerDisplayEl.style.color = "#00ffaa"; // Cronômetro fica verde
+            }
+
+            // NOVA FUNÇÃO: Quando o tempo acaba
+            function onFail() {
+                isFailed = true;
+                clearInterval(timerInterval); // Garante que o timer pare
+
+                // Mostra o overlay gigante
+                failOverlayEl.style.display = "flex";
+                
+                // Faz a página piscar
+                bodyEl.classList.add('flashing-red');
+
+                // Trava tudo e muda status
+                statusEl.innerText = "FALHA CRÍTICA - PROTOCOLO BLOQUEADO";
+                statusEl.style.color = "red";
+                inputs.freq.disabled = true;
+                inputs.amp.disabled = true;
+                inputs.phase.disabled = true;
+                debugEl.innerText = "System Failure. Lockdown initiated.";
+                timerDisplayEl.style.color = "red"; // Cronômetro fica vermelho
             }
 
             draw();
