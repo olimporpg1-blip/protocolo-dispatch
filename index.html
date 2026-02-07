@@ -2,23 +2,23 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Glitchium Protocol</title>
+    <title>Glitchium Protocol v3.0</title>
     <style>
-        /* --- ESTILO VISUAL (Baseado nas referências) --- */
+        /* --- ESTILO VISUAL --- */
         :root {
-            --main-blue: #64c4ff; /* Azul claro da referência */
-            --neon-pink: #ff0055; /* Rosa para erro/glitch */
-            --bg-dark: #0a0a0c;   /* Fundo quase preto */
-            --panel-bg: rgba(20, 24, 30, 0.95); /* Fundo do painel semi-transparente */
+            --main-blue: #64c4ff;
+            --neon-pink: #ff0055;
+            --bg-dark: #0a0a0c;
+            --panel-bg: rgba(20, 24, 30, 0.95);
+            --success-color: #00ffaa; /* Verde para indicar slider correto */
         }
 
         body { 
             background-color: var(--bg-dark);
-            /* Grade azul claro sutil */
             background-image: 
-                linear-gradient(rgba(100, 196, 255, 0.07) 1px, transparent 1px), 
-                linear-gradient(90deg, rgba(100, 196, 255, 0.07) 1px, transparent 1px);
-            background-size: 50px 50px;
+                linear-gradient(rgba(100, 196, 255, 0.05) 1px, transparent 1px), 
+                linear-gradient(90deg, rgba(100, 196, 255, 0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
             color: var(--main-blue); 
             font-family: 'Courier New', monospace; 
             display: flex; 
@@ -33,30 +33,44 @@
 
         .interface-container {
             position: relative;
-            /* Borda azul fina como na referência */
             border: 1px solid var(--main-blue);
             padding: 30px 40px;
             background: var(--panel-bg);
-            /* Brilho azul suave atrás do painel */
-            box-shadow: 0 0 40px rgba(100, 196, 255, 0.2);
+            box-shadow: 0 0 50px rgba(100, 196, 255, 0.15);
             border-radius: 8px;
             text-align: center;
             width: 650px;
         }
 
-        /* Estilo para o Logo */
+        /* LOGO */
+        .logo-container {
+            margin-bottom: 20px;
+            min-height: 60px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
         .main-logo {
-            max-width: 80%;
-            height: auto;
-            margin-bottom: 25px;
-            /* Adiciona um leve brilho no logo para destacar */
-            filter: drop-shadow(0 0 10px rgba(100, 196, 255, 0.3));
+            max-width: 250px;
+            filter: drop-shadow(0 0 8px rgba(100, 196, 255, 0.5));
+        }
+
+        /* Texto alternativo bonito se a imagem falhar */
+        .logo-text {
+            font-size: 32px;
+            font-weight: 900;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            text-shadow: 2px 2px 0px var(--neon-pink), -2px -2px 0px var(--main-blue);
+            display: none; /* Escondido por padrão */
         }
 
         canvas { 
-            border: 2px solid #3a4a5a; /* Borda do canvas mais discreta */
+            border: 1px solid #3a4a5a;
             background: #05070a; 
-            box-shadow: inset 0 0 20px rgba(0,0,0,1);
+            box-shadow: inset 0 0 30px #000;
             margin-bottom: 20px;
             border-radius: 4px;
             width: 100%;
@@ -70,25 +84,38 @@
         }
 
         .slider-wrapper {
-            background: rgba(100, 196, 255, 0.05); /* Fundo sutil nos sliders */
-            padding: 10px;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 15px 10px;
             border-radius: 4px;
             border: 1px solid rgba(100, 196, 255, 0.1);
+            transition: all 0.3s;
+        }
+
+        /* Classe que adicionaremos via JS quando o slider estiver certo */
+        .slider-wrapper.correct {
+            border-color: var(--success-color);
+            box-shadow: 0 0 10px rgba(0, 255, 170, 0.2);
+            background: rgba(0, 255, 170, 0.05);
+        }
+        
+        .slider-wrapper.correct label {
+            color: var(--success-color);
         }
 
         label { 
             display: block;
-            font-size: 10px; 
+            font-size: 11px; 
             text-transform: uppercase; 
             letter-spacing: 1px; 
-            color: rgba(100, 196, 255, 0.7); 
-            margin-bottom: 8px;
+            color: rgba(100, 196, 255, 0.6); 
+            margin-bottom: 10px;
+            font-weight: bold;
         }
 
         input[type=range] { 
             width: 100%; 
             cursor: pointer;
-            accent-color: var(--main-blue); /* Cor do slider */
+            accent-color: var(--main-blue);
         }
 
         #status { 
@@ -133,12 +160,10 @@
             background-color: #fff;
         }
 
-        /* Debug Panel */
         #debug {
-            font-size: 9px;
-            color: rgba(100, 196, 255, 0.4);
-            margin-top: 10px;
-            font-family: monospace;
+            font-size: 10px;
+            color: rgba(100, 196, 255, 0.3);
+            margin-top: 15px;
         }
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -147,22 +172,26 @@
 <body>
 
     <div class="interface-container">
-        <img src="logo-glitchium.png" alt="Glitchium Logo" class="main-logo" onerror="this.style.display='none'; console.log('Erro: Imagem do logo não encontrada. Verifique o nome do arquivo.');">
+        
+        <div class="logo-container">
+            <img src="logo-glitchium.png" class="main-logo" onerror="this.style.display='none'; document.querySelector('.logo-text').style.display='block';">
+            <div class="logo-text">GLITCHIUM</div>
+        </div>
 
         <div id="status">⚠️ SINAL INSTÁVEL - REQUER SINCRONIZAÇÃO</div>
         
         <canvas id="syncCanvas" width="600" height="250"></canvas>
         
         <div class="controls">
-            <div class="slider-wrapper">
+            <div class="slider-wrapper" id="wrap-freq">
                 <label>Frequência</label>
                 <input type="range" id="freq" min="0.01" max="0.1" step="0.001" value="0.02">
             </div>
-            <div class="slider-wrapper">
+            <div class="slider-wrapper" id="wrap-amp">
                 <label>Amplitude</label>
                 <input type="range" id="amp" min="10" max="100" step="1" value="20">
             </div>
-            <div class="slider-wrapper">
+            <div class="slider-wrapper" id="wrap-phase">
                 <label>Fase (Shift)</label>
                 <input type="range" id="phase" min="0" max="6.3" step="0.1" value="0">
             </div>
@@ -175,57 +204,68 @@
             </a>
         </div>
         
-        <div id="debug">System Ready. Initiate sequence.</div>
+        <div id="debug">System Initialized.</div>
     </div>
 
     <script>
-        // Inicia o jogo assim que o elemento existir
-        setTimeout(initGame, 100);
+        // Espera a página carregar para evitar erros
+        window.onload = function() {
+            initGame();
+        };
 
         function initGame() {
             const canvas = document.getElementById('syncCanvas');
-            if(!canvas) return;
-
             const ctx = canvas.getContext('2d');
             const statusEl = document.getElementById('status');
             const successModal = document.getElementById('success-modal');
             const debugEl = document.getElementById('debug');
             
+            // Elementos DOM dos Sliders
             const inputs = {
                 freq: document.getElementById('freq'),
                 amp: document.getElementById('amp'),
                 phase: document.getElementById('phase')
             };
 
-            // --- CONFIGURAÇÃO DA RESPOSTA ---
+            // Elementos DOM das caixas (para mudar a cor)
+            const wrappers = {
+                freq: document.getElementById('wrap-freq'),
+                amp: document.getElementById('wrap-amp'),
+                phase: document.getElementById('wrap-phase')
+            };
+
+            // --- SEGREDOS DO PUZZLE ---
             const target = {
                 freq: 0.055,
                 amp: 65,
                 phase: 3.1
             };
 
-            // Tolerância
-            const tolerance = { freq: 0.006, amp: 10, phase: 0.8 };
+            // Tolerância (Quanto maior, mais fácil)
+            const tolerance = { freq: 0.007, amp: 12, phase: 0.9 };
 
             let time = 0;
             let isSolved = false;
 
-            // Cores do JS
-            const colorSuccess = "#64c4ff"; // Azul claro
-            const colorError = "#ff0055";   // Rosa glitch
-
             function draw() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-                drawGrid(ctx, canvas.width, canvas.height);
+                
+                // Desenha Grade de Fundo
+                ctx.strokeStyle = "rgba(100, 196, 255, 0.05)";
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                for(let i=0; i<canvas.width; i+=40) { ctx.moveTo(i,0); ctx.lineTo(i, canvas.height); }
+                for(let i=0; i<canvas.height; i+=40) { ctx.moveTo(0,i); ctx.lineTo(canvas.width, i); }
+                ctx.stroke();
 
                 time += 0.08;
                 const centerY = canvas.height / 2;
 
-                // 1. Onda Alvo (Cinza/Fantasma)
+                // 1. ONDA ALVO (Guia)
                 ctx.beginPath();
-                ctx.strokeStyle = "rgba(255, 255, 255, 0.15)";
+                ctx.strokeStyle = "rgba(255, 255, 255, 0.1)";
                 ctx.lineWidth = 4;
-                ctx.setLineDash([5, 10]); 
+                ctx.setLineDash([5, 8]); 
                 for (let x = 0; x < canvas.width; x++) {
                     const y = centerY + Math.sin(x * target.freq + target.phase + time) * target.amp;
                     ctx.lineTo(x, y);
@@ -233,43 +273,83 @@
                 ctx.stroke();
                 ctx.setLineDash([]); 
 
-                // 2. Onda do Jogador
+                // 2. ONDA DO JOGADOR
                 const curFreq = parseFloat(inputs.freq.value);
                 const curAmp = parseFloat(inputs.amp.value);
                 const curPhase = parseFloat(inputs.phase.value);
 
-                // Checar Erro
+                // Cálculo de diferença
                 const errFreq = Math.abs(curFreq - target.freq);
                 const errAmp = Math.abs(curAmp - target.amp);
                 const errPhase = Math.abs(curPhase - target.phase);
 
-                // Debug visual
-                if(!isSolved) {
-                    debugEl.innerText = `Diff: Freq(${errFreq.toFixed(3)}) Amp(${errAmp.toFixed(0)}) Phase(${errPhase.toFixed(1)})`;
-                }
+                // --- SISTEMA DE FEEDBACK VISUAL (LUZES) ---
+                // Se a Frequência estiver certa, acende a caixa
+                if(errFreq < tolerance.freq) wrappers.freq.classList.add('correct');
+                else wrappers.freq.classList.remove('correct');
 
-                // Vitória
-                if (!isSolved && errFreq < tolerance.freq && errAmp < tolerance.amp && errPhase < tolerance.phase) {
+                // Se a Amplitude estiver certa, acende a caixa
+                if(errAmp < tolerance.amp) wrappers.amp.classList.add('correct');
+                else wrappers.amp.classList.remove('correct');
+
+                // Se a Fase estiver certa, acende a caixa
+                if(errPhase < tolerance.phase) wrappers.phase.classList.add('correct');
+                else wrappers.phase.classList.remove('correct');
+
+                // Verifica Vitória Total
+                const solvedNow = (errFreq < tolerance.freq && errAmp < tolerance.amp && errPhase < tolerance.phase);
+
+                if (!isSolved && solvedNow) {
                     onSuccess();
                 }
 
-                // Cores
+                // Define Cor da Linha
                 if (isSolved) {
-                    ctx.strokeStyle = colorSuccess; 
+                    ctx.strokeStyle = "#00ffaa"; // Verde Sucesso
                     ctx.shadowBlur = 15;
-                    ctx.shadowColor = colorSuccess;
-                    statusEl.innerText = "SINAL ESTABILIZADO - CONEXÃO SEGURA";
-                    statusEl.style.color = colorSuccess;
+                    ctx.shadowColor = "#00ffaa";
                 } else {
-                    ctx.strokeStyle = colorError; 
+                    ctx.strokeStyle = "#ff0055"; // Rosa Erro
                     ctx.shadowBlur = 0;
-                    statusEl.innerText = "⚠️ SINAL INSTÁVEL - REQUER SINCRONIZAÇÃO";
-                    statusEl.style.color = colorError;
                 }
 
-                // Desenha Onda Jogador
+                // Desenha Linha do Jogador
                 ctx.beginPath();
                 ctx.lineWidth = 3;
                 
+                // Tremor (diminui quanto mais perto você chega)
                 let jitter = 0;
                 if (!isSolved) {
+                    const totalError = (errFreq * 500) + (errAmp / 2) + (errPhase * 5);
+                    jitter = (Math.random() - 0.5) * Math.min(totalError / 4, 3);
+                }
+
+                for (let x = 0; x < canvas.width; x++) {
+                    const y = centerY + Math.sin(x * curFreq + curPhase + time) * curAmp + jitter;
+                    ctx.lineTo(x, y);
+                }
+                ctx.stroke();
+
+                requestAnimationFrame(draw);
+            }
+
+            function onSuccess() {
+                isSolved = true;
+                statusEl.innerText = "SINAL ESTABILIZADO - CONEXÃO SEGURA";
+                statusEl.style.color = "#00ffaa";
+                statusEl.style.textShadow = "0 0 10px #00ffaa";
+                successModal.style.display = "flex";
+                
+                // Trava os controles
+                inputs.freq.disabled = true;
+                inputs.amp.disabled = true;
+                inputs.phase.disabled = true;
+                
+                debugEl.innerText = "Connection Established.";
+            }
+
+            draw();
+        }
+    </script>
+</body>
+</html>
